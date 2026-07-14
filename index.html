@@ -212,6 +212,14 @@
     color:white; padding:14px 34px; font-size:1rem;
     box-shadow: 0 8px 20px rgba(255,92,141,0.4);
   }
+  @keyframes shakeGrid{
+    0%,100%{ transform: translateX(0); }
+    20%{ transform: translateX(-8px); }
+    40%{ transform: translateX(8px); }
+    60%{ transform: translateX(-6px); }
+    80%{ transform: translateX(6px); }
+  }
+  .grid.shake{ animation: shakeGrid .45s ease; }
 
   /* back-nudge notification */
   #backNotice{
@@ -302,15 +310,15 @@
 <!-- thank you overlay -->
 <div id="thanksOverlay">
   <h2>Yayyy thank you! 🥹</h2>
-  <p>Aap best hai, love you bestu 💗</p>
+  <p>Aap best hain, love you bestie 💗</p>
 </div>
 
 <!-- ===== SCREEN 2: SNACK PICKER ===== -->
 <div class="screen" id="screen2">
   <div class="picker">
     <h1>Chalo ab batao 😋</h1>
-    <p class="sub">Sorry ke badle mein kya loge? Jitna chahe utna select karo 👇</p>
-    <div class="grid">
+    <p class="sub">Sorry ke badle mein kya lenge aap? Jitna chahe utna select kijiye — kam se kam ek toh chunna hoga 👇</p>
+    <div class="grid" id="itemGrid">
       <div class="item-card" data-item="Pulse Toffee 🍬">
         <span class="emoji">🍬</span>
         <span class="name">Pulse Toffee</span>
@@ -332,7 +340,7 @@
   </div>
 </div>
 
-<div id="backNotice">🥹 Ruko na! Pehle toh batao kya loge, phir kahin jaana 😤</div>
+<div id="backNotice">🥹 Ruko na bestie! Pehle toh batao aap kya lenge, phir kahin jaaiyega 😤</div>
 
 <!-- ===== SCREEN 3: SUMMARY ===== -->
 <div class="screen" id="screen3">
@@ -342,7 +350,6 @@
       <ul id="summaryList"></ul>
       <div class="actions">
         <button id="shareBtn">Share screenshot 📤</button>
-        <button id="restartBtn">Firse shuru karo</button>
       </div>
     </div>
     <p class="signature">made with 💗 for the best friend ever</p>
@@ -373,11 +380,11 @@
   let declineScale = 1;
 
   const pleadMessages = [
-    "arre yaha nahi... 🥺 mujhe accept karo na",
-    "please please please 🙏",
-    "dekho button aur bada ho raha hai 👉",
-    "sirf ek click door hai sorry se 💗",
-    "haaar maan jao yaar 😭"
+    "arre yaha nahi, cutiepie... 🥺 accept wale button pe click kijiye",
+    "please please please, maan jaiye na 🙏",
+    "dekhiye, button aur bada ho raha hai 👉",
+    "sirf ek click door hai sorry se, bestie 💗",
+    "please na... aap maan jaaiye 😭"
   ];
   let pleadIndex = 0;
 
@@ -404,7 +411,7 @@
     const clickedDecline = declineBtn.contains(e.target);
     if(!clickedAccept && !clickedDecline){
       growAccept();
-      showToast("hleoo 👀 accept wale button pe click karo na");
+      showToast("hleoo cutiepie 👀 accept wale button pe click kijiye na");
     }
   });
 
@@ -453,19 +460,21 @@
   });
 
   document.getElementById('doneBtn').addEventListener('click', ()=>{
+    if(selected.size === 0){
+      const grid = document.getElementById('itemGrid');
+      grid.classList.remove('shake');
+      void grid.offsetWidth; // restart animation
+      grid.classList.add('shake');
+      showToast("cutiepie, kam se kam ek toh chuniye na 🥺");
+      return;
+    }
     const list = document.getElementById('summaryList');
     list.innerHTML = '';
-    if(selected.size === 0){
+    selected.forEach(item=>{
       const li = document.createElement('li');
-      li.textContent = "Kuch bhi nahi liya? theek hai, agli baar sahi 🥲";
+      li.textContent = "• " + item;
       list.appendChild(li);
-    } else {
-      selected.forEach(item=>{
-        const li = document.createElement('li');
-        li.textContent = "• " + item;
-        list.appendChild(li);
-      });
-    }
+    });
     showScreen(screen3);
   });
 
@@ -475,9 +484,19 @@
   function armBackGuard(){
     if(guardArmed) return;
     guardArmed = true;
+    // buffer a couple of extra states so a quick double/triple back can't slip through
+    history.pushState(null, '', location.href);
+    history.pushState(null, '', location.href);
     history.pushState(null, '', location.href);
     window.addEventListener('popstate', ()=>{
+      // immediately restore the buffer, every single time
       history.pushState(null, '', location.href);
+      history.pushState(null, '', location.href);
+      backNotice.textContent = screen3.classList.contains('active')
+        ? "🙈 share toh kardo baba, sharma kyu rahe ho? kahan ja rahe ho 😤"
+        : "🥹 Ruko na bestie! Pehle toh batao aap kya lenge, phir kahin jaaiyega 😤";
+      backNotice.classList.remove('show');
+      void backNotice.offsetWidth; // restart animation so repeated backs still nudge
       backNotice.classList.add('show');
       clearTimeout(armBackGuard._t);
       armBackGuard._t = setTimeout(()=> backNotice.classList.remove('show'), 2200);
@@ -504,10 +523,6 @@
       URL.revokeObjectURL(url);
       showToast("Screenshot download ho gaya, ab share kardo 💗");
     }, 'image/png');
-  });
-
-  document.getElementById('restartBtn').addEventListener('click', ()=>{
-    location.reload();
   });
 </script>
 </body>
