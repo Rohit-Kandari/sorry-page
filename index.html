@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sorry yaar 🥺</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink: #ffe3ec;
+    --lavender: #efe1ff;
+    --coral: #ff7fa6;
+    --coral-dark: #ff5c8d;
+    --plum: #4a2545;
+    --muted: #c9bcd6;
+    --white: #fffaf9;
+    --shadow: 0 12px 30px rgba(163, 96, 143, 0.18);
+  }
+  *{box-sizing:border-box;}
+  html,body{
+    margin:0; padding:0; min-height:100%;
+    font-family:'Quicksand', sans-serif;
+    background: radial-gradient(circle at 20% 20%, var(--pink), transparent 55%),
+                radial-gradient(circle at 80% 0%, var(--lavender), transparent 50%),
+                linear-gradient(160deg, #fff6f8, #f6eeff);
+    color: var(--plum);
+    overflow-x:hidden;
+    min-height:100vh;
+  }
+  .screen{
+    display:none;
+    min-height:100vh;
+    width:100%;
+    align-items:center;
+    justify-content:center;
+    padding: 24px;
+    position:relative;
+  }
+  .screen.active{display:flex;}
+
+  /* floating decorative emojis */
+  .float-emoji{
+    position:fixed; font-size:26px; opacity:0.55; pointer-events:none;
+    animation: floaty 6s ease-in-out infinite;
+    z-index:0;
+  }
+  @keyframes floaty{
+    0%,100%{transform:translateY(0) rotate(0deg);}
+    50%{transform:translateY(-22px) rotate(8deg);}
+  }
+
+  /* ---------- Screen 1: Apology ---------- */
+  .card{
+    background: var(--white);
+    border-radius: 32px;
+    padding: 40px 34px;
+    max-width: 460px;
+    width:100%;
+    text-align:center;
+    box-shadow: var(--shadow);
+    position:relative;
+    z-index:1;
+    border: 2px solid #ffffffaa;
+  }
+  .card h1{
+    font-family:'Fredoka', sans-serif;
+    font-size: 2rem;
+    margin: 0 0 6px;
+    color: var(--coral-dark);
+  }
+  .card p.msg{
+    font-size: 1.05rem;
+    line-height:1.6;
+    margin: 14px 0 28px;
+    color: #6b4763;
+  }
+  #pleadText{
+    display:block;
+    min-height: 22px;
+    font-size:0.92rem;
+    color: var(--coral-dark);
+    font-weight:600;
+    margin-bottom:14px;
+    transition: opacity .25s ease;
+  }
+  .btn-row{
+    display:flex; justify-content:center; align-items:center; gap:16px;
+    flex-wrap:wrap;
+  }
+  button{
+    font-family:'Fredoka', sans-serif;
+    border:none; cursor:pointer;
+    border-radius: 999px;
+    font-weight:600;
+    transition: all .28s cubic-bezier(.34,1.56,.64,1);
+    letter-spacing:.2px;
+  }
+  #acceptBtn{
+    background: linear-gradient(135deg, var(--coral), var(--coral-dark));
+    color:white;
+    padding: 14px 30px;
+    font-size: 1.05rem;
+    box-shadow: 0 8px 20px rgba(255,92,141,0.45);
+  }
+  #acceptBtn:hover{ filter: brightness(1.05); }
+  #declineBtn{
+    background: #f1eaf5;
+    color: var(--muted);
+    padding: 8px 16px;
+    font-size: 0.85rem;
+    box-shadow: none;
+  }
+
+  .toast{
+    position:fixed;
+    bottom: 32px; left:50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--plum);
+    color:white;
+    padding: 12px 22px;
+    border-radius: 999px;
+    font-size:0.9rem;
+    font-weight:600;
+    opacity:0;
+    pointer-events:none;
+    transition: all .3s ease;
+    z-index:50;
+    max-width: 90vw;
+    text-align:center;
+  }
+  .toast.show{
+    opacity:1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* thank you overlay */
+  #thanksOverlay{
+    position:fixed; inset:0;
+    background: rgba(255, 246, 248, 0.96);
+    display:none;
+    align-items:center; justify-content:center;
+    z-index:100;
+    flex-direction:column;
+    text-align:center;
+  }
+  #thanksOverlay.show{display:flex;}
+  #thanksOverlay h2{
+    font-family:'Fredoka', sans-serif;
+    font-size:2.2rem;
+    color: var(--coral-dark);
+    margin:0;
+  }
+  #thanksOverlay p{ color:#6b4763; margin-top:8px; }
+  .heart{
+    position:fixed;
+    bottom:-40px;
+    font-size: 20px;
+    animation: rise 2.4s ease-in forwards;
+    z-index:99;
+  }
+  @keyframes rise{
+    to{ transform: translateY(-100vh) rotate(360deg); opacity:0; }
+  }
+
+  /* ---------- Screen 2: Snack selection ---------- */
+  .picker{
+    max-width: 560px; width:100%; text-align:center; z-index:1;
+  }
+  .picker h1{
+    font-family:'Fredoka', sans-serif;
+    font-size:1.8rem;
+    color: var(--coral-dark);
+    margin-bottom:6px;
+  }
+  .picker p.sub{ color:#6b4763; margin-bottom:26px; }
+  .grid{
+    display:grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+    margin-bottom: 30px;
+  }
+  @media(max-width:420px){ .grid{grid-template-columns: 1fr 1fr;} }
+  .item-card{
+    background: var(--white);
+    border-radius: 22px;
+    padding: 22px 12px;
+    box-shadow: 0 6px 16px rgba(163,96,143,0.12);
+    cursor:pointer;
+    border: 2.5px solid transparent;
+    transition: all .2s ease;
+    user-select:none;
+  }
+  .item-card:hover{ transform: translateY(-3px); }
+  .item-card .emoji{ font-size:2.2rem; display:block; margin-bottom:8px; }
+  .item-card .name{ font-weight:600; font-size:0.95rem; }
+  .item-card.selected{
+    border-color: var(--coral);
+    background: linear-gradient(135deg, #fff0f4, #fff);
+    box-shadow: 0 8px 20px rgba(255,92,141,0.25);
+  }
+  .item-card.selected::after{
+    content:"✓ liya";
+    display:block;
+    margin-top:6px;
+    font-size:0.75rem;
+    color: var(--coral-dark);
+    font-weight:700;
+  }
+  #doneBtn{
+    background: linear-gradient(135deg, var(--coral), var(--coral-dark));
+    color:white; padding:14px 34px; font-size:1rem;
+    box-shadow: 0 8px 20px rgba(255,92,141,0.4);
+  }
+
+  /* back-nudge notification */
+  #backNotice{
+    position:fixed; top: 24px; left:50%;
+    transform: translateX(-50%) translateY(-140%);
+    background: var(--coral-dark);
+    color:white;
+    padding: 14px 24px;
+    border-radius: 18px;
+    font-weight:600;
+    font-size:0.92rem;
+    box-shadow: 0 10px 24px rgba(255,92,141,0.4);
+    z-index:200;
+    transition: transform .4s cubic-bezier(.34,1.56,.64,1);
+    max-width: 90vw;
+    text-align:center;
+  }
+  #backNotice.show{ transform: translateX(-50%) translateY(0); }
+
+  /* ---------- Screen 3: Summary ---------- */
+  .summary-wrap{ max-width: 460px; width:100%; z-index:1; }
+  .summary-card{
+    background: var(--white);
+    border-radius: 28px;
+    padding: 32px 28px;
+    box-shadow: var(--shadow);
+    text-align:center;
+  }
+  .summary-card h1{
+    font-family:'Fredoka', sans-serif;
+    color: var(--coral-dark);
+    font-size:1.6rem;
+    margin-top:0;
+  }
+  #summaryList{
+    list-style:none; padding:0; margin: 18px 0 6px;
+    text-align:left;
+    display:inline-block;
+  }
+  #summaryList li{
+    font-size:1.05rem;
+    padding: 8px 0;
+    font-weight:600;
+    color:#6b4763;
+  }
+  .actions{
+    margin-top: 22px;
+    display:flex; gap:12px; justify-content:center; flex-wrap:wrap;
+  }
+  #shareBtn{
+    background: linear-gradient(135deg, var(--coral), var(--coral-dark));
+    color:white; padding: 12px 26px; font-size:0.95rem;
+    box-shadow: 0 8px 20px rgba(255,92,141,0.4);
+  }
+  #restartBtn{
+    background:#f1eaf5; color:#8a7a92; padding:12px 22px; font-size:0.88rem;
+  }
+  .signature{
+    margin-top: 30px; font-size:0.78rem; color:#c9bcd6;
+  }
+</style>
+</head>
+<body>
+
+<!-- floating decorative emojis -->
+<span class="float-emoji" style="top:8%; left:6%; animation-delay:0s;">🌸</span>
+<span class="float-emoji" style="top:70%; left:10%; animation-delay:1.2s;">💗</span>
+<span class="float-emoji" style="top:15%; left:85%; animation-delay:2s;">✨</span>
+<span class="float-emoji" style="top:80%; left:80%; animation-delay:0.6s;">🌷</span>
+
+<!-- ===== SCREEN 1: APOLOGY ===== -->
+<div class="screen active" id="screen1">
+  <div class="card" id="apologyCard">
+    <h1>Sorry na yaar 🥺</h1>
+    <p class="msg">
+      Pata hai maine ki aapko disappoint kiya hai, aur mujhe bura lag raha hai.
+      Aap meri best friend hai aur aapka naraz hona bilkul bhi accha nahi lagta.
+      Ek chance de do nah baba, promise aage se dhyan rakhunga 💗
+    </p>
+    <span id="pleadText"></span>
+    <div class="btn-row">
+      <button id="acceptBtn">Maaf kiya 💖</button>
+      <button id="declineBtn">Nahi</button>
+    </div>
+  </div>
+</div>
+
+<!-- thank you overlay -->
+<div id="thanksOverlay">
+  <h2>Yayyy thank you! 🥹</h2>
+  <p>Aap best hai, love you bestu 💗</p>
+</div>
+
+<!-- ===== SCREEN 2: SNACK PICKER ===== -->
+<div class="screen" id="screen2">
+  <div class="picker">
+    <h1>Chalo ab batao 😋</h1>
+    <p class="sub">Sorry ke badle mein kya loge? Jitna chahe utna select karo 👇</p>
+    <div class="grid">
+      <div class="item-card" data-item="Pulse Toffee 🍬">
+        <span class="emoji">🍬</span>
+        <span class="name">Pulse Toffee</span>
+      </div>
+      <div class="item-card" data-item="Melody Toffee 🍭">
+        <span class="emoji">🍭</span>
+        <span class="name">Melody Toffee</span>
+      </div>
+      <div class="item-card" data-item="Lay's Blue (Magic Masala) 🥔">
+        <span class="emoji">🥔</span>
+        <span class="name">Lay's Blue</span>
+      </div>
+      <div class="item-card" data-item="Ice-cream 🍦">
+        <span class="emoji">🍦</span>
+        <span class="name">Ice-cream</span>
+      </div>
+    </div>
+    <button id="doneBtn">Ho gaya, aage badho →</button>
+  </div>
+</div>
+
+<div id="backNotice">🥹 Ruko na! Pehle toh batao kya loge, phir kahin jaana 😤</div>
+
+<!-- ===== SCREEN 3: SUMMARY ===== -->
+<div class="screen" id="screen3">
+  <div class="summary-wrap">
+    <div class="summary-card" id="summaryCard">
+      <h1>Aap ne ye choose kiya 🎀</h1>
+      <ul id="summaryList"></ul>
+      <div class="actions">
+        <button id="shareBtn">Share screenshot 📤</button>
+        <button id="restartBtn">Firse shuru karo</button>
+      </div>
+    </div>
+    <p class="signature">made with 💗 for the best friend ever</p>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+  // ---------- Screen management ----------
+  const screen1 = document.getElementById('screen1');
+  const screen2 = document.getElementById('screen2');
+  const screen3 = document.getElementById('screen3');
+  function showScreen(el){
+    [screen1, screen2, screen3].forEach(s => s.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // ---------- Screen 1: apology logic ----------
+  const acceptBtn = document.getElementById('acceptBtn');
+  const declineBtn = document.getElementById('declineBtn');
+  const pleadText = document.getElementById('pleadText');
+  const apologyCard = document.getElementById('apologyCard');
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  document.body.appendChild(toast);
+
+  let acceptScale = 1;
+  let declineScale = 1;
+
+  const pleadMessages = [
+    "arre yaha nahi... 🥺 mujhe accept karo na",
+    "please please please 🙏",
+    "dekho button aur bada ho raha hai 👉",
+    "sirf ek click door hai sorry se 💗",
+    "haaar maan jao yaar 😭"
+  ];
+  let pleadIndex = 0;
+
+  function growAccept(){
+    acceptScale = Math.min(acceptScale + 0.12, 2.1);
+    declineScale = Math.max(declineScale - 0.08, 0.55);
+    acceptBtn.style.transform = `scale(${acceptScale})`;
+    declineBtn.style.transform = `scale(${declineScale})`;
+    pleadText.textContent = pleadMessages[pleadIndex % pleadMessages.length];
+    pleadIndex++;
+  }
+
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=> toast.classList.remove('show'), 1800);
+  }
+
+  // click anywhere outside the two buttons -> nudge
+  document.addEventListener('click', (e)=>{
+    if(!screen1.classList.contains('active')) return;
+    const clickedAccept = acceptBtn.contains(e.target);
+    const clickedDecline = declineBtn.contains(e.target);
+    if(!clickedAccept && !clickedDecline){
+      growAccept();
+      showToast("hleoo 👀 accept wale button pe click karo na");
+    }
+  });
+
+  declineBtn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    growAccept();
+  });
+
+  acceptBtn.addEventListener('click', (e)=>{
+    e.stopPropagation();
+    const overlay = document.getElementById('thanksOverlay');
+    overlay.classList.add('show');
+    // little heart burst
+    for(let i=0;i<14;i++){
+      setTimeout(()=>{
+        const h = document.createElement('span');
+        h.className = 'heart';
+        h.textContent = ['💗','💖','✨','🌸'][Math.floor(Math.random()*4)];
+        h.style.left = Math.random()*100 + 'vw';
+        h.style.fontSize = (16 + Math.random()*18) + 'px';
+        document.body.appendChild(h);
+        setTimeout(()=> h.remove(), 2500);
+      }, i*90);
+    }
+    setTimeout(()=>{
+      overlay.classList.remove('show');
+      showScreen(screen2);
+      armBackGuard();
+    }, 1900);
+  });
+
+  // ---------- Screen 2: snack picker ----------
+  const itemCards = document.querySelectorAll('.item-card');
+  const selected = new Set();
+  itemCards.forEach(card => {
+    card.addEventListener('click', ()=>{
+      const val = card.dataset.item;
+      if(selected.has(val)){
+        selected.delete(val);
+        card.classList.remove('selected');
+      } else {
+        selected.add(val);
+        card.classList.add('selected');
+      }
+    });
+  });
+
+  document.getElementById('doneBtn').addEventListener('click', ()=>{
+    const list = document.getElementById('summaryList');
+    list.innerHTML = '';
+    if(selected.size === 0){
+      const li = document.createElement('li');
+      li.textContent = "Kuch bhi nahi liya? theek hai, agli baar sahi 🥲";
+      list.appendChild(li);
+    } else {
+      selected.forEach(item=>{
+        const li = document.createElement('li');
+        li.textContent = "• " + item;
+        list.appendChild(li);
+      });
+    }
+    showScreen(screen3);
+  });
+
+  // ---------- Prevent back navigation with cute nudge ----------
+  const backNotice = document.getElementById('backNotice');
+  let guardArmed = false;
+  function armBackGuard(){
+    if(guardArmed) return;
+    guardArmed = true;
+    history.pushState(null, '', location.href);
+    window.addEventListener('popstate', ()=>{
+      history.pushState(null, '', location.href);
+      backNotice.classList.add('show');
+      clearTimeout(armBackGuard._t);
+      armBackGuard._t = setTimeout(()=> backNotice.classList.remove('show'), 2200);
+    });
+  }
+
+  // ---------- Screen 3: share + restart ----------
+  document.getElementById('shareBtn').addEventListener('click', async ()=>{
+    const card = document.getElementById('summaryCard');
+    const canvas = await html2canvas(card, {backgroundColor: '#fffaf9', scale: 2});
+    canvas.toBlob(async (blob)=>{
+      const file = new File([blob], 'meri-choice.png', {type:'image/png'});
+      if(navigator.share && navigator.canShare && navigator.canShare({files:[file]})){
+        try{
+          await navigator.share({files:[file], title:'Meri choice 🎀'});
+          return;
+        }catch(err){ /* fall through to download */ }
+      }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'meri-choice.png';
+      a.click();
+      URL.revokeObjectURL(url);
+      showToast("Screenshot download ho gaya, ab share kardo 💗");
+    }, 'image/png');
+  });
+
+  document.getElementById('restartBtn').addEventListener('click', ()=>{
+    location.reload();
+  });
+</script>
+</body>
+</html>
